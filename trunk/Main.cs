@@ -10,9 +10,9 @@ using System.Xml.XPath;
 namespace DocumentationReflector
 {
 	/// <summary>
-	/// Reflector.
+	/// Documentation Reflector console program to generate useful documentation of .NET assemblies
 	/// </summary>
-	public class Reflector
+	public class ReflectorConsole
 	{
 		/// <summary>
 		/// The entry point of the program, where the program control starts and ends.
@@ -23,56 +23,8 @@ namespace DocumentationReflector
 		public static void Main(string[] args)
 		{
 			IDictionary<Assembly, XDocument> assemblyPairs = ParseArguments(args);
-			
-			XElement documentation = new XElement("documentation");
-			
-			foreach (KeyValuePair<Assembly, XDocument> pair in assemblyPairs)
-			{
-				Assembly currentAssembly = pair.Key;
-				XDocument currentDocument = pair.Value;
-				
-				// Get basic assembly information
-				XElement assembly = new XElement("assembly",
-					new XElement("name", currentAssembly.GetName().Name),
-					new XElement("fullName", currentAssembly.FullName),
-					new XElement("manifestModuleName", currentAssembly.ManifestModule.Name)
-					);
-				
-				// Add list of namespaces
-				assembly.Add(
-					new XElement("namespaces",
-						currentAssembly.GetTypes()
-							.Select(t => t.Namespace)
-							.Distinct()
-							.OrderBy(n => n)
-							.Select(n => new XElement("namespace", n))
-					));
-				
-				XElement types = new XElement("types");
-				
-				foreach (Type currentType in currentAssembly.GetTypes())
-				{
-					XElement type = new XElement("type",
-						new XElement("name", currentType.Name),
-						new XElement("fullName", currentType.FullName),
-						new XElement("baseType", 
-							new XElement("fullName", currentType.BaseType.FullName),
-							new XElement("assemblyFullName", currentType.BaseType.Assembly.FullName)
-							)
-						);
-					
-					types.Add(type);
-				}
-				
-				assembly.Add(types);
-				
-				documentation.Add(assembly);
-			}
-			
-			XDocument document = new XDocument(
-				new XDeclaration("1.0", "utf-8", "yes"),
-				documentation
-				);
+			Reflector reflector = new Reflector(assemblyPairs);
+			XDocument document = reflector.GenerateDocument();
 
 			using (XmlWriter writer = XmlWriter.Create(Console.Out, new XmlWriterSettings(){Indent = true}))
 			{
@@ -81,13 +33,13 @@ namespace DocumentationReflector
 		}
 		
 		/// <summary>
-		/// Parses the arguments.
+		/// Parses the command-line arguments
 		/// </summary>
 		/// <returns>
-		/// The arguments.
+		/// Mapping of loaded assemblies and their associated XML documentation, if available
 		/// </returns>
 		/// <param name='arguments'>
-		/// Arguments.
+		/// Command-line arguments that may contain filename wildcard patterns
 		/// </param>
 		private static IDictionary<Assembly, XDocument> ParseArguments(IEnumerable<string> arguments)
 		{

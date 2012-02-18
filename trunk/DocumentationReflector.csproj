@@ -42,10 +42,13 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Reflector.cs" />
+    <Compile Include="TypeExtension.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="example.xml" />
+    <None Include="msdn.xsl" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
