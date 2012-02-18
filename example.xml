@@ -1,26 +1,41 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="msdn.xsl"?>
 <documentation>
-	<assembly>
-		<name/>
-		<fullName/>
-		<manifestName/>
-		<namespaces>
-			<namespace/>	
-		</namespaces>
-		<types>
-			<type fullName="">
-				<name/>
-				<baseType/>
-				<constructors>
-					<constructor>
-						<name/>
-						<parameters>
-							<parameter name="" type="">
-							</parameter>
-						</parameters>
-					</constructor>
-				</constructors>
-			</type>
-		</types>
-	</assembly>
+  <assembly>
+    <name>DocumentationReflector</name>
+    <fullName>DocumentationReflector, Version=1.0.4431.11974, Culture=neutral, PublicKeyToken=null</fullName>
+    <manifestModuleName>DocumentationReflector.exe</manifestModuleName>
+    <namespaces>
+      <namespace>DocumentationReflector</namespace>
+    </namespaces>
+    <types>
+      <type>
+        <name>Reflector</name>
+        <namespace>DocumentationReflector</namespace>
+        <fullName>DocumentationReflector.Reflector</fullName>
+        <baseType>
+          <fullName>System.Object</fullName>
+          <assemblyFullName>mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</assemblyFullName>
+        </baseType>
+      </type>
+      <type>
+        <name>&lt;ParseArguments&gt;c__AnonStorey0</name>
+        <namespace>DocumentationReflector</namespace>
+        <fullName>DocumentationReflector.Reflector+&lt;ParseArguments&gt;c__AnonStorey0</fullName>
+        <baseType>
+          <fullName>System.Object</fullName>
+          <assemblyFullName>mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</assemblyFullName>
+        </baseType>
+      </type>
+      <type>
+        <name>&lt;ParseArguments&gt;c__AnonStorey1</name>
+        <namespace>DocumentationReflector</namespace>
+        <fullName>DocumentationReflector.Reflector+&lt;ParseArguments&gt;c__AnonStorey0+&lt;ParseArguments&gt;c__AnonStorey1</fullName>
+        <baseType>
+          <fullName>System.Object</fullName>
+          <assemblyFullName>mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</assemblyFullName>
+        </baseType>
+      </type>
+    </types>
+  </assembly>
 </documentation>
