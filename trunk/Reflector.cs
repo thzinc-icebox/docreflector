@@ -6,9 +6,11 @@ using System.Xml.Linq;
 using System.IO;
 using System.Xml;
 using System.Xml.XPath;
+using System.Text;
 
 namespace DocumentationReflector
 {
+	
 	/// <summary>
 	/// Primary class to reflect through assemblies and generate an <see cref="XDocument"/> from them
 	/// </summary>
@@ -49,7 +51,7 @@ namespace DocumentationReflector
 		/// <returns>
 		/// <see cref="XDocument"/> representing a detailed reflection of the <see cref="AssemblyDocumentationPairs"/>
 		/// </returns>
-		public XDocument GenerateDocument()
+		public XDocument GenerateDocument(BindingFlags bindingFlags = BindingFlags.Default | BindingFlags.IgnoreCase | BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy | BindingFlags.InvokeMethod | BindingFlags.CreateInstance | BindingFlags.GetField | BindingFlags.SetField | BindingFlags.GetProperty | BindingFlags.SetProperty | BindingFlags.PutDispProperty | BindingFlags.PutRefDispProperty | BindingFlags.ExactBinding | BindingFlags.SuppressChangeType | BindingFlags.OptionalParamBinding | BindingFlags.IgnoreReturn)
 		{
 			XElement documentation = new XElement("documentation");
 			
@@ -79,8 +81,47 @@ namespace DocumentationReflector
 				
 				foreach (Type currentType in currentAssembly.GetTypes())
 				{
-					// Get type info
-					// Get type documentation
+					XElement type = new XElement("type");
+					
+					string typeType;
+					if (currentType.IsClass)
+					{
+						typeType = "class";
+					}
+					else
+					if (currentType.IsInterface)
+						{
+							typeType = "interface";
+						}
+						else
+						if (currentType.IsEnum)
+							{
+								typeType = "enum";
+							}
+							else
+							if (currentType.IsValueType)
+								{
+									typeType = "struct";
+								}
+								else
+								{
+									typeType = "unknown";
+								}
+					
+					type.Add(
+						new XAttribute("id", currentType.FullName),
+						new XAttribute("type", typeType),
+						new XAttribute("abstract", currentType.IsAbstract),
+						new XAttribute("sealed", currentType.IsSealed),
+						new XAttribute("public", currentType.IsPublic),
+						new XAttribute("nested", currentType.IsNested),
+						new XElement("name", currentType.Name),
+						new XElement("namespace", currentType.Namespace),
+						new XElement("fullName", currentType.FullName),
+						GetDocumentation(currentDocument, currentType)
+						);
+					
+					// TODO: Identify internal and protected types
 					
 					foreach (Type currentGenericType in currentType.GetGenericArguments())
 					{
@@ -97,25 +138,45 @@ namespace DocumentationReflector
 						// Get interface info
 					}
 					
-					foreach (Type currentNestedType in currentType.GetNestedTypes())
+					foreach (Type currentNestedType in currentType.GetNestedTypes(bindingFlags))
 					{
 						// Get nested type info
 					}
 					
-					foreach (ConstructorInfo currentConstructor in currentType.GetConstructors())
+					XElement constructors = new XElement("constructors");
+					
+					foreach (ConstructorInfo currentConstructor in currentType.GetConstructors(bindingFlags))
 					{
-						// Get constructor info
-						// Get constructor documentation
+						XElement constructor = new XElement("constructor");
+						
+						constructor.Add(
+							new XAttribute("id", GetMethodSignature(currentConstructor)),
+							new XAttribute("abstract", currentConstructor.IsAbstract),
+							new XAttribute("public", currentConstructor.IsPublic),
+							new XAttribute("internal", currentConstructor.IsAssembly),
+							new XAttribute("protected", currentConstructor.IsFamily),
+							GetDocumentation(currentDocument, currentConstructor)
+							);
+						// TODO: solidify method/constructor info
+						
+						constructors.Add(constructor);
 					}
 					
-					foreach (MemberInfo currentMember in currentType.GetMembers())
+					type.Add(constructors);
+					
+					foreach (PropertyInfo currentProperty in currentType.GetProperties(bindingFlags))
 					{
-						// Get member info
-						// Get member documentation
+						// Get property info
+						// Get property documentation
 					}
 					
+					foreach (FieldInfo currentField in currentType.GetFields(bindingFlags))
+					{
+						// Get field info
+						// Get field documentation
+					}
 					
-					foreach (MethodInfo currentMethod in currentType.GetMethods())
+					foreach (MethodInfo currentMethod in currentType.GetMethods(bindingFlags))
 					{
 						// Get method info
 						// Get method documentation
@@ -128,11 +189,13 @@ namespace DocumentationReflector
 						// Get method documentation
 					}
 					
-					foreach (EventInfo currentEvent in currentType.GetEvents())
+					foreach (EventInfo currentEvent in currentType.GetEvents(bindingFlags))
 					{
 						// Get event info
 						// Get event documentation
 					}
+					
+					types.Add(type);
 				}
 
 				assembly.Add(types);
@@ -166,7 +229,7 @@ namespace DocumentationReflector
 		/// </param>
 		private IEnumerable<XElement> GetDocumentation(XDocument document, string name)
 		{
-			XElement member = document.XPathSelectElement(string.Format("/doc/members/member[@name = 'N:{0}']", name));
+			XElement member = GetMemberDocumentation(document, string.Format("N:{0}", name));
 			IEnumerable<XElement> documentation;
 			
 			if (member == null)
@@ -180,6 +243,61 @@ namespace DocumentationReflector
 			}
 			
 			return documentation;
+		}
+		
+		private IEnumerable<XElement> GetDocumentation(XDocument document, Type type)
+		{
+			XElement member = GetMemberDocumentation(document, string.Format("T:{0}", type.FullName));
+			IEnumerable<XElement> documentation;
+			
+			if (member == null)
+			{
+				documentation = new XElement[]{};
+			}
+			else
+			{
+				// TODO: Do some translation on the crefs
+				documentation = member.Descendants();
+			}
+			
+			return documentation;
+		}
+		
+		private IEnumerable<XElement> GetDocumentation(XDocument document, MethodBase method)
+		{
+			XElement member = GetMemberDocumentation(document, string.Format("M:{0}", GetMethodSignature(method)));
+			IEnumerable<XElement> documentation;
+			
+			if (member == null)
+			{
+				documentation = new XElement[]{};
+			}
+			else
+			{
+				// TODO: Do some translation on the crefs
+				documentation = member.Descendants();
+			}
+			
+			return documentation;
+		}
+		
+		private XElement GetMemberDocumentation(XDocument document, string name)
+		{
+			return document.XPathSelectElement(string.Format("/doc/members/member[@name = '{0}']", name));
+		}
+		
+		private string GetMethodSignature(MethodBase method)
+		{
+			string methodName = method.Name;
+			
+			if (method is ConstructorInfo)
+			{
+				methodName = ".#ctor";
+			}
+			
+			string parameters = string.Join(",", method.GetParameters().Select(p => p.ParameterType.FullName).ToArray());
+			
+			return string.Format("{0}{1}{2}", method.DeclaringType.FullName, methodName, parameters.Any() ? string.Format("({0})", parameters) : null);
 		}
 		
 		#endregion
