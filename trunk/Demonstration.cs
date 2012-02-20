@@ -168,5 +168,19 @@ namespace DocumentationReflector.AcidTest
 			return null;
 		}
 	}
+	
+	/// <summary>
+	/// Protected class.
+	/// </summary>
+	internal class InternalClass
+	{
+	}
+	
+	/// <summary>
+	/// Public sealed class.
+	/// </summary>
+	public sealed class PublicSealedClass
+	{
+	}
 }
 
