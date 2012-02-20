@@ -81,8 +81,6 @@ namespace DocumentationReflector
 				
 				foreach (Type currentType in currentAssembly.GetTypes())
 				{
-					XElement type = new XElement("type");
-					
 					string typeType;
 					if (currentType.IsClass)
 					{
@@ -105,12 +103,13 @@ namespace DocumentationReflector
 								}
 								else
 								{
-									typeType = "unknown";
+									typeType = "type"; // Unknown type
 								}
 					
+					XElement type = new XElement(typeType);
+
 					type.Add(
 						new XAttribute("id", currentType.FullName),
-						new XAttribute("type", typeType),
 						new XAttribute("abstract", currentType.IsAbstract),
 						new XAttribute("sealed", currentType.IsSealed),
 						new XAttribute("public", currentType.IsPublic),
