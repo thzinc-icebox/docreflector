@@ -45,6 +45,7 @@
     <Compile Include="Reflector.cs" />
     <Compile Include="TypeExtension.cs" />
     <Compile Include="Demonstration.cs" />
+    <Compile Include="MemberInfoExtension.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
